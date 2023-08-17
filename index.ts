@@ -1,4 +1,4 @@
-import { init, Ditto } from '@dittolive/ditto'
+import { init, Ditto, TransportConfig } from '@dittolive/ditto'
 require('dotenv').config()
 
 let ditto
@@ -37,6 +37,17 @@ async function main () {
   const metadata = { model: 'tester' }
   const attachment = await modelCollection.newAttachment("./file.zip", metadata)
   const docID = await modelCollection.upsert({ model: 'tester', my_attachment: attachment })
+
+  console.log("Upserted attachment")
+
+   const presenceObserver = ditto.presence.observe((graph) => {
+    if (graph.remotePeers.length != 0) {
+      graph.remotePeers.forEach((peer) => {
+        console.log("peer connection: ", peer.deviceName, peer.connections[0].connectionType)
+      })
+    }
+  })
+
 }
 
 main()
