@@ -38,14 +38,15 @@ async function main() {
   modelSubscription = modelCollection.find("isDeleted == false").subscribe()
 
   // LiveQuery to grab new documents
-  modelCollection.find("isDeleted == false").observeLocal((docs, event) => {
+  modelCollection.find("ACK == false").observeLocal((docs, event) => {
     // new docs
     for (let i = 0; i < docs.length; i++) {
       // get attachmentToken
+      let doc = docs[i]
       const attachmentToken = doc.at('my_attachment').attachmentToken
       const attachmentMetadata = doc.at('my_attachment').metadata
 
-      Logger.info("Attachment metadata: ", attachmentMetadata)
+      Logger.info(`Attachment metadata: ${attachmentMetadata}`)
 
       const attachmentFetcher = collection.fetchAttachment(attachmentToken, async (attachmentFetchEvent) => {
         switch (attachmentFetchEvent.type) {
@@ -64,7 +65,7 @@ async function main() {
   })
   // Fetch attachment for each new doc
 
-  ditto.presence.observe((graph) => {
+  let presence = ditto.presence.observe((graph) => {
     if (graph.remotePeers.length != 0) {
       graph.remotePeers.forEach((peer) => {
         console.log("peer connection: ", peer.deviceName, peer.connections[0].connectionType)

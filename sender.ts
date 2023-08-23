@@ -1,5 +1,7 @@
-import { init, Ditto, TransportConfig } from '@dittolive/ditto'
+import { init, Ditto, Logger, TransportConfig } from '@dittolive/ditto'
 require('dotenv').config()
+
+Logger.minimumLogLevel = 'Info'
 
 let ditto
 let modelCollection
@@ -33,7 +35,15 @@ async function main() {
   ditto.startSync()
 
   modelCollection = ditto.store.collection("models")
-  modelSubscription = modelCollection.find("isDeleted == false").subscribe()
+  modelSubscription = modelCollection.find("ACK == true").subscribe()
+  modelCollection.find("ACK == true").observeLocal((docs, event) => {
+    // new docs
+    for (let i = 0; i < docs.length; i++) {
+      let doc = docs[i]
+      Logger.info(`doc ACKed: ${doc.id}`)
+    }
+  })
+
   const attachmentPath = "./rp.jpg"
   const metadata = { model: 'tester' }
   const attachment = await modelCollection.newAttachment(attachmentPath, metadata)
