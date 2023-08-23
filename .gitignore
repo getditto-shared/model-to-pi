@@ -1,6 +1,8 @@
 ditto
 node_modules
 index.js
+sender.js
+receiver.js
 .env
 *.zip
 
