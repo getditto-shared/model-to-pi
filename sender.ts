@@ -40,18 +40,20 @@ async function main() {
     }
   })
 
-  const attachmentPath = "./rp.jpg"
+  const attachmentPath = "./"
+  const filename = "rp.jpg"
   const metadata = { model: 'tester', source: attachmentPath}
   const attachment = await modelCollection.newAttachment(attachmentPath, metadata)
   const docID = await modelCollection.upsert({
     ACK: false,
     model: 'tester',
     source: attachmentPath,
+    filename: filename,
     target: './ditto',
     my_attachment: attachment
   })
 
-  console.log("Upserted attachment: ", docID.id)
+  console.log("Upserted attachment: ", docID)
 
   let presence = ditto.presence.observe((graph) => {
     if (graph.remotePeers.length != 0) {

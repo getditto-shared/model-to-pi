@@ -45,8 +45,9 @@ async function main() {
         switch (attachmentFetchEvent.type) {
           case 'Completed':
             const fetchedAttachment = attachmentFetchEvent.attachment
-            Logger.info(`Have new attachment, writing to local filesystem: ${fetchedAttachment.metadata["source"]}`)
-            fetchedAttachment.copyToPath(fetchedAttachment.metadata["source"])
+            const target = doc["target"] + doc["filename"]
+            Logger.info(`Have new attachment, writing to local filesystem: ${target}`)
+            fetchedAttachment.copyToPath(`${target}`)
             await modelCollection.findByID(doc.id).update((mutableDoc) => {
               mutableDoc.at('ACK').set(true)
             })
