@@ -41,14 +41,14 @@ async function main() {
   })
 
   const attachmentPath = "./"
-  const filename = "rp.jpg"
-  const metadata = { model: 'tester', source: attachmentPath}
-  const attachment = await modelCollection.newAttachment(attachmentPath, metadata)
+  const attachmentFilename = "rp.jpg"
+  const metadata = { model: 'tester', source: attachmentPath + attachmentFilename}
+  const attachment = await modelCollection.newAttachment(attachmentPath + attachmentFilename, metadata)
   const docID = await modelCollection.upsert({
     ACK: false,
     model: 'tester',
     source: attachmentPath,
-    filename: filename,
+    filename: attachmentFilename,
     target: './ditto',
     my_attachment: attachment
   })

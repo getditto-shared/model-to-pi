@@ -31,7 +31,7 @@ async function main() {
   ditto.startSync()
 
   let modelCollection = ditto.store.collection("models")
-  let modelSubscription = modelCollection.find("isDeleted == false").subscribe()
+  let modelSubscription = modelCollection.find("ACK == false").subscribe()
 
   // LiveQuery to grab new documents
   modelCollection.find("ACK == false").observeLocal(async (docs, event) => {
