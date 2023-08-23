@@ -45,7 +45,7 @@ async function main() {
         switch (attachmentFetchEvent.type) {
           case 'Completed':
             const fetchedAttachment = attachmentFetchEvent.attachment
-            const target = doc["target"] + doc["filename"]
+            const target = doc.value["target"] + doc.value["filename"]
             Logger.info(`Have new attachment, writing to local filesystem: ${target}`)
             fetchedAttachment.copyToPath(`${target}`)
             await modelCollection.findByID(doc.id).update((mutableDoc) => {
