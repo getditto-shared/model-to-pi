@@ -1,10 +1,7 @@
 ditto
 node_modules
 index.js
-<<<<<<< HEAD
 sender.js
-=======
->>>>>>> 04e302ff80729e5dd8d5fcc8df4edee5291b869d
 receiver.js
 .env
 *.zip
