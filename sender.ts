@@ -18,7 +18,7 @@ async function main() {
   })
 
   const config = new TransportConfig()
-  config.peerToPeer.bluetoothLE.isEnabled = true
+  config.peerToPeer.bluetoothLE.isEnabled = false
   config.peerToPeer.lan.isEnabled = true
   config.peerToPeer.awdl.isEnabled = false
   ditto.observeTransportConditions((condition, source) => {
@@ -45,10 +45,10 @@ async function main() {
   })
 
   const attachmentPath = "./rp.jpg"
-  const metadata = { model: 'tester' }
+  const metadata = { model: 'tester', source: attachmentPath}
   const attachment = await modelCollection.newAttachment(attachmentPath, metadata)
   const docID = await modelCollection.upsert({
-    isDeleted: false,
+    ACK: false,
     model: 'tester',
     source: attachmentPath,
     target: './ditto',
@@ -57,7 +57,7 @@ async function main() {
 
   console.log("Upserted attachment: ", docID)
 
-  ditto.presence.observe((graph) => {
+  let presence = ditto.presence.observe((graph) => {
     if (graph.remotePeers.length != 0) {
       graph.remotePeers.forEach((peer) => {
         console.log("peer connection: ", peer.deviceName, peer.connections[0].connectionType)

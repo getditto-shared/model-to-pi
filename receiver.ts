@@ -38,7 +38,7 @@ async function main() {
   modelSubscription = modelCollection.find("isDeleted == false").subscribe()
 
   // LiveQuery to grab new documents
-  modelCollection.find("ACK == false").observeLocal((docs, event) => {
+  modelCollection.find("ACK == false").observeLocal(async (docs, event) => {
     // new docs
     for (let i = 0; i < docs.length; i++) {
       // get attachmentToken
@@ -48,11 +48,11 @@ async function main() {
 
       Logger.info(`Attachment metadata: ${attachmentMetadata}`)
 
-      const attachmentFetcher = collection.fetchAttachment(attachmentToken, async (attachmentFetchEvent) => {
+      const attachmentFetcher = modelCollection.fetchAttachment(attachmentToken, async (attachmentFetchEvent) => {
         switch (attachmentFetchEvent.type) {
           case 'Completed':
-            Logger.info('Have new attachment, writing to local filesystem')
             const fetchedAttachment = attachmentFetchEvent.attachment
+            Logger.info(`Have new attachment, writing to local filesystem: ${fetchedAttachment.metadata["source"]}`)
             // write to local path - get from metadata
             break
 
@@ -60,6 +60,10 @@ async function main() {
             Logger.error('Unable to fetch attachment completely')
             break
         }
+      })
+
+      await modelCollection.findById(doc.id).update((mutableDoc) => {
+        mutableDoc.at('ACK == true')
       })
     }
   })
