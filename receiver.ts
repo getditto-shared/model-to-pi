@@ -16,6 +16,7 @@ async function main() {
     token: process.env.APP_TOKEN,
     enableDittoCloudSync: false
   })
+
   const config = new TransportConfig()
   config.peerToPeer.bluetoothLE.isEnabled = true
   config.peerToPeer.lan.isEnabled = true
