@@ -3,14 +3,10 @@ require('dotenv').config()
 
 Logger.minimumLogLevel = 'Info'
 
-let ditto
-let modelCollection
-let modelSubscription
-
 async function main() {
   // Initialize the Ditto module
   await init()
-  ditto = new Ditto({
+  let ditto = new Ditto({
     type: 'onlinePlayground',
     appID: process.env.APP_ID,
     token: process.env.APP_TOKEN,
@@ -34,13 +30,13 @@ async function main() {
   ditto.setTransportConfig(config)
   ditto.startSync()
 
-  modelCollection = ditto.store.collection("models")
-  modelSubscription = modelCollection.find("ACK == true").subscribe()
+  let modelCollection = ditto.store.collection("models")
+  let modelSubscription = modelCollection.find("ACK == true").subscribe()
   modelCollection.find("ACK == true").observeLocal((docs, event) => {
     // new docs
     for (let i = 0; i < docs.length; i++) {
       let doc = docs[i]
-      Logger.info(`doc ACKed: ${doc.id}`)
+      Logger.info(`attachment delivery ACKed: ${doc.id}`)
     }
   })
 
@@ -55,7 +51,7 @@ async function main() {
     my_attachment: attachment
   })
 
-  console.log("Upserted attachment: ", docID)
+  console.log("Upserted attachment: ", docID.id)
 
   let presence = ditto.presence.observe((graph) => {
     if (graph.remotePeers.length != 0) {

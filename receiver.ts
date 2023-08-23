@@ -1,16 +1,12 @@
 import { init, Ditto, Logger, TransportConfig } from '@dittolive/ditto'
 require('dotenv').config()
 
-let ditto
-let modelCollection
-let modelSubscription
-
 Logger.minimumLogLevel = 'Info'
 
 async function main() {
   // Initialize the Ditto module
   await init()
-  ditto = new Ditto({
+  let ditto = new Ditto({
     type: 'onlinePlayground',
     appID: process.env.APP_ID,
     token: process.env.APP_TOKEN,
@@ -18,7 +14,7 @@ async function main() {
   })
 
   const config = new TransportConfig()
-  config.peerToPeer.bluetoothLE.isEnabled = true
+  config.peerToPeer.bluetoothLE.isEnabled = false
   config.peerToPeer.lan.isEnabled = true
   config.peerToPeer.awdl.isEnabled = false
   ditto.observeTransportConditions((condition, source) => {
@@ -34,8 +30,8 @@ async function main() {
   ditto.setTransportConfig(config)
   ditto.startSync()
 
-  modelCollection = ditto.store.collection("models")
-  modelSubscription = modelCollection.find("isDeleted == false").subscribe()
+  let modelCollection = ditto.store.collection("models")
+  let modelSubscription = modelCollection.find("isDeleted == false").subscribe()
 
   // LiveQuery to grab new documents
   modelCollection.find("ACK == false").observeLocal(async (docs, event) => {
@@ -44,15 +40,16 @@ async function main() {
       // get attachmentToken
       let doc = docs[i]
       const attachmentToken = doc.at('my_attachment').attachmentToken
-      const attachmentMetadata = doc.at('my_attachment').metadata
-
-      Logger.info(`Attachment metadata: ${attachmentMetadata}`)
 
       const attachmentFetcher = modelCollection.fetchAttachment(attachmentToken, async (attachmentFetchEvent) => {
         switch (attachmentFetchEvent.type) {
           case 'Completed':
             const fetchedAttachment = attachmentFetchEvent.attachment
             Logger.info(`Have new attachment, writing to local filesystem: ${fetchedAttachment.metadata["source"]}`)
+            fetchedAttachment.copyToPath(fetchedAttachment.metadata["source"])
+            await modelCollection.findByID(doc.id).update((mutableDoc) => {
+              mutableDoc.at('ACK').set(true)
+            })
             // write to local path - get from metadata
             break
 
@@ -62,9 +59,6 @@ async function main() {
         }
       })
 
-      await modelCollection.findById(doc.id).update((mutableDoc) => {
-        mutableDoc.at('ACK == true')
-      })
     }
   })
   // Fetch attachment for each new doc
