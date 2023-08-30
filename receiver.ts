@@ -14,7 +14,7 @@ async function main() {
   })
 
   const config = new TransportConfig()
-  config.peerToPeer.bluetoothLE.isEnabled = false
+  config.peerToPeer.bluetoothLE.isEnabled = true
   config.peerToPeer.lan.isEnabled = true
   config.peerToPeer.awdl.isEnabled = false
   ditto.observeTransportConditions((condition, source) => {
